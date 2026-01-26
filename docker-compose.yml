@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16
+    container_name: asur_postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: db_asur
+    ports:
+      - "5432:5432"
+    volumes:
+      - asur_data:/var/lib/postgresql/data
+      - ./src/main/sql:/docker-entrypoint-initdb.d
+    restart: unless-stopped
+
+volumes:
+  asur_data:
