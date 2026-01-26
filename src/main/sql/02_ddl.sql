@@ -228,7 +228,9 @@ CREATE TABLE recurso (
     nombre VARCHAR(100) NOT NULL UNIQUE,
     descripcion VARCHAR(200),
     cap_max INTEGER NOT NULL CHECK (cap_max > 0),
-    costo_hora DECIMAL(10,2) NOT NULL DEFAULT 0 CHECK (costo_hora >= 0),
+    costo_hora_socio DECIMAL(10,2) NOT NULL DEFAULT 0 CHECK (costo_hora_socio >= 0),
+    costo_hora_no_socio DECIMAL(10,2) NOT NULL DEFAULT 0 CHECK (costo_hora_no_socio >= 0),
+    fecha_vigencia_precios DATE DEFAULT CURRENT_DATE,
     activo BOOLEAN NOT NULL DEFAULT TRUE
 );
 
@@ -241,6 +243,10 @@ CREATE TABLE reserva (
     cant_personas INTEGER NOT NULL CHECK (cant_personas > 0),
     monto_total DECIMAL(10,2) NOT NULL CHECK (monto_total >= 0),
     duracion TIME NOT NULL,
+    importe_sena DECIMAL(10,2) DEFAULT 0 CHECK (importe_sena >= 0),
+    fecha_vto_sena DATE,
+    fecha_pago_sena DATE,
+    importe_sena_pagado DECIMAL(10,2) DEFAULT 0 CHECK (importe_sena_pagado >= 0),
     id_estado_pago_reserva SMALLINT NOT NULL DEFAULT 3,
     id_usuario INTEGER NOT NULL,
     id_recurso INTEGER NOT NULL,

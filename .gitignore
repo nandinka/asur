@@ -8,5 +8,5 @@ target/
 .classpath
 .project
 .settings/
-config.properties
+src/main/resources/config.properties.example
 .DS_Store

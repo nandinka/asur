@@ -17,9 +17,9 @@ public class EmailSender {
     private final boolean usarSSL;
 
     private EmailSender() {
-        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties")) {
+        try (InputStream input = getClass().getClassLoader().getResourceAsStream("config.properties.example")) {
             if (input == null) {
-                throw new RuntimeException("no se encontro config.properties");
+                throw new RuntimeException("no se encontro config.properties.example");
             }
 
             Properties prop = new Properties();

@@ -11,7 +11,16 @@ public class RecursoDAOImpl implements RecursoDAO {
     public RecursoDAOImpl(Connection conn) { this.conn = conn; }
 
     public Recurso crearDesdeResultSet(ResultSet rs) throws SQLException {
-        return new Recurso(rs.getInt("id_recurso"), rs.getString("nombre"), rs.getString("descripcion"), rs.getInt("cap_max"), rs.getBigDecimal("costo_hora"), rs.getBoolean("activo"));
+        Recurso r = new Recurso();
+        r.setId(rs.getInt("id_recurso"));
+        r.setNombre(rs.getString("nombre"));
+        r.setDescripcion(rs.getString("descripcion"));
+        r.setCapMax(rs.getInt("cap_max"));
+        r.setCostoHoraSocio(rs.getBigDecimal("costo_hora_socio"));
+        r.setCostoHoraNoSocio(rs.getBigDecimal("costo_hora_no_socio"));
+        r.setFechaVigenciaPrecios(rs.getDate("fecha_vigencia_precios"));
+        r.setActivo(rs.getBoolean("activo"));
+        return r;
     }
 
     public Recurso obtenerPorId(int id) {
@@ -54,12 +63,16 @@ public class RecursoDAOImpl implements RecursoDAO {
     public boolean existeNombre(String nombre) { return obtenerPorNombre(nombre) != null; }
 
     public void insertar(Recurso r) {
-        try (PreparedStatement ps = conn.prepareStatement("INSERT INTO recurso (nombre, descripcion, cap_max, costo_hora, activo) VALUES (?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO recurso (nombre, descripcion, cap_max, costo_hora_socio, costo_hora_no_socio, fecha_vigencia_precios, activo) VALUES (?, ?, ?, ?, ?, ?, ?)", 
+                Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, r.getNombre());
             ps.setString(2, r.getDescripcion());
             ps.setInt(3, r.getCapMax());
-            ps.setBigDecimal(4, r.getCostoHora());
-            ps.setBoolean(5, r.isActivo());
+            ps.setBigDecimal(4, r.getCostoHoraSocio());
+            ps.setBigDecimal(5, r.getCostoHoraNoSocio());
+            ps.setDate(6, r.getFechaVigenciaPrecios());
+            ps.setBoolean(7, r.isActivo());
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) r.setId(keys.getInt(1));
@@ -67,13 +80,16 @@ public class RecursoDAOImpl implements RecursoDAO {
     }
 
     public void actualizar(Recurso r) {
-        try (PreparedStatement ps = conn.prepareStatement("UPDATE recurso SET nombre = ?, descripcion = ?, cap_max = ?, costo_hora = ?, activo = ? WHERE id_recurso = ?")) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE recurso SET nombre = ?, descripcion = ?, cap_max = ?, costo_hora_socio = ?, costo_hora_no_socio = ?, fecha_vigencia_precios = ?, activo = ? WHERE id_recurso = ?")) {
             ps.setString(1, r.getNombre());
             ps.setString(2, r.getDescripcion());
             ps.setInt(3, r.getCapMax());
-            ps.setBigDecimal(4, r.getCostoHora());
-            ps.setBoolean(5, r.isActivo());
-            ps.setInt(6, r.getId());
+            ps.setBigDecimal(4, r.getCostoHoraSocio());
+            ps.setBigDecimal(5, r.getCostoHoraNoSocio());
+            ps.setDate(6, r.getFechaVigenciaPrecios());
+            ps.setBoolean(7, r.isActivo());
+            ps.setInt(8, r.getId());
             ps.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }
     }

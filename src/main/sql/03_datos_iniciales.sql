@@ -10,11 +10,11 @@ INSERT INTO tipo_documento (id_tipo_documento, descripcion) VALUES
 (3, 'DNI Extranjero'),
 (4, 'Otro');
 
--- estados de usuario
+-- estados de usuario (segun documento: Sin validar, Activo, Inactivo)
 INSERT INTO estado_usuario (id_estado_usuario, descripcion) VALUES
-(1, 'Activo'),
-(2, 'Inactivo'),
-(3, 'Bloqueado');
+(1, 'Sin validar'),
+(2, 'Activo'),
+(3, 'Inactivo');
 
 -- tipos de telefono
 INSERT INTO tipo_telefono (id_tipo_telefono, descripcion) VALUES
@@ -175,13 +175,13 @@ INSERT INTO subcomision (descripcion, activo) VALUES
 ('Comision Social', TRUE),
 ('Comision Juventud', TRUE);
 
--- recursos/espacios
-INSERT INTO recurso (nombre, descripcion, cap_max, costo_hora, activo) VALUES
-('Salon Principal', 'Salon grande para eventos', 100, 500.00, TRUE),
-('Salon Secundario', 'Salon mediano multiuso', 50, 300.00, TRUE),
-('Sala de Reuniones', 'Sala pequena para reuniones', 15, 150.00, TRUE),
-('Cancha de Futbol', 'Cancha exterior', 22, 400.00, TRUE),
-('Patio Central', 'Espacio abierto', 200, 250.00, TRUE);
+-- recursos/espacios (con precio diferenciado socio/no socio)
+INSERT INTO recurso (nombre, descripcion, cap_max, costo_hora_socio, costo_hora_no_socio, fecha_vigencia_precios, activo) VALUES
+('Salon Principal', 'Salon grande para eventos', 100, 400.00, 600.00, '2024-01-01', TRUE),
+('Salon Secundario', 'Salon mediano multiuso', 50, 250.00, 400.00, '2024-01-01', TRUE),
+('Sala de Reuniones', 'Sala pequena para reuniones', 15, 100.00, 200.00, '2024-01-01', TRUE),
+('Cancha de Futbol', 'Cancha exterior', 22, 300.00, 500.00, '2024-01-01', TRUE),
+('Patio Central', 'Espacio abierto', 200, 200.00, 350.00, '2024-01-01', TRUE);
 
 -- valor cuota base
 INSERT INTO valor_cuota_base (costo_cuota, fecha_vigencia, activo) VALUES
@@ -190,12 +190,13 @@ INSERT INTO valor_cuota_base (costo_cuota, fecha_vigencia, activo) VALUES
 
 -- usuarios de prueba (password: asd123!@#)
 -- hash bcrypt de "asd123!@#"
+-- estado 2 = Activo
 INSERT INTO usuario (nombre, apellido, documento, id_tipo_documento, correo, correo_confirmado, contrasena, calle, nro_puerta, id_estado_usuario, fec_nacimiento, id_perfil)
 VALUES
-('Admin', 'Sistema', '12345678', 1, 'admin@asur.uy', TRUE, '$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq4H5Jkfj0Iw9JoYoWqbNX5bKMJ1yK', 'Hermanos Gil', '945', 1, '1990-01-01', 1),
-('Maria', 'Rodriguez', '23456789', 1, 'maria@asur.uy', TRUE, '$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq4H5Jkfj0Iw9JoYoWqbNX5bKMJ1yK', 'Av. 18 de Julio', '1234', 1, '1985-05-15', 2),
-('Juan', 'Perez', '34567890', 1, 'juan@asur.uy', TRUE, '$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq4H5Jkfj0Iw9JoYoWqbNX5bKMJ1yK', 'Bulevar Artigas', '567', 1, '1992-08-20', 3),
-('Laura', 'Martinez', '45678901', 1, 'laura@asur.uy', FALSE, '$2a$10$N9qo8uLOickgx2ZMRZoMy.Mrq4H5Jkfj0Iw9JoYoWqbNX5bKMJ1yK', 'Av. Brasil', '890', 1, '1988-03-10', 4);
+('Admin', 'Sistema', '12345678', 1, 'admin@asur.uy', TRUE, '$2a$12$kUFNkJy2pMI7HbmCpAotkedqFaY3qh0qGGXGtIzzMPtfn41Y4Nymy', 'Hermanos Gil', '945', 2, '1990-01-01', 1),
+('Maria', 'Rodriguez', '23456789', 1, 'maria@asur.uy', TRUE, '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.K3KqS0kZ/5K2Iy', 'Av. 18 de Julio', '1234', 2, '1985-05-15', 2),
+('Juan', 'Perez', '34567890', 1, 'juan@asur.uy', TRUE, '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.K3KqS0kZ/5K2Iy', 'Bulevar Artigas', '567', 2, '1992-08-20', 3),
+('Laura', 'Martinez', '45678901', 1, 'laura@asur.uy', FALSE, '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.K3KqS0kZ/5K2Iy', 'Av. Brasil', '890', 1, '1988-03-10', 4);
 
 -- telefonos
 INSERT INTO telefono (numero, id_tipo_telefono, id_estado_telefono, id_usuario) VALUES

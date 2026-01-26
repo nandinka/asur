@@ -1,229 +1,273 @@
+# ASUR - Sistema de Gestión
+## Asociación de Sordos del Uruguay
 
-
-# la obra magna
-# asur - sistema de gestion
-
-## asociacion de sordos del uruguay
-
-esto es un sistema hecho en **java** para manejar la interna de asur.
-usuarios, permisos, actividades, pagos y todo eso.
-corre por consola, con base de datos en **postgresql** levantada con **docker**.
-
-si seguis los pasos, anda. si no anda, es porque te salteaste algo.
- lo speedrunee en 3 dias como jesus asi q puede estar bastante fulero en alguna q otra cosa no soy programadora tengo problemas psiquiatricos nomas y lo hice x amor al arte
+Sistema de gestión institucional para ASUR desarrollado en Java.
 
 ---
 
-## que trae esta poronga
-
-* manejo de usuarios
-* perfiles y permisos (no cualquiera hace cualquier cosa)
-* control de funcionalidades
-* auditoria 
-* actividades
-* espacios y recursos
-* tipos de actividades
-* pagos
+## Requisitos
+- Java 17+
+- Maven 3.8+
+- PostgreSQL 16+
+- Docker y Docker Compose
+- IntelliJ IDEA (recomendado)
 
 ---
 
-## con que esta hecho
+## Instalación Paso a Paso
 
-* java 17+
-* maven (para no compilar a mano como un cavernicola)
-* postgresql
-* docker + docker compose (la bd se levanta sola)
-* intellij (si usas eclipse es bajo tu responsabilidad)
-
----
-
-## seguridad 
-
-* contraseñas encriptadas con bcrypt
-* no se guardan passwords en texto plano
-* validacion de cedula uruguaya
-* contraseña fuerte o no entras
-* permisos por perfil
-* prepared statements (no hay sql injection aca capo)
-* auditoria de todo lo que hace el usuario
-
----
-
-## requisitos 
-
-* java 17 o mas
-* maven
-* docker andando
-* ganas de leer
-
----
-
-## como levantar esto sin llorar
-
-### 1. bajar el proyecto
-
+### 1. Clonar o descomprimir el proyecto
 ```bash
 unzip asur-proyecto.zip
 cd asur-proyecto
 ```
 
----
-
-### 2. levantar la base de datos
-
+### 2. Levantar la base de datos con Docker
 ```bash
 docker-compose up -d
 ```
 
-si no sabes si anda:
-
+Verificar que esté corriendo:
 ```bash
 docker ps
 ```
+Deberías ver `asur_postgres` en la lista.
 
-tenes que ver `asur_postgres`, si no esta, algo hiciste mal.
+### 3. Crear usuario y schema en PostgreSQL
 
----
-
-### 3. crear usuario y schema (leer bien)
-
+Conectar a PostgreSQL:
 ```bash
-docker exec -it asur_postgres psql -u postgres
+docker exec -it asur_postgres psql -U postgres
 ```
 
-adentro de postgres:
-
+Ejecutar estos comandos uno por uno:
 ```sql
-create user proyecto with password 'proyecto123';
-create database db_asur owner proyecto;
-grant all privileges on database db_asur to proyecto;
+CREATE USER proyecto WITH PASSWORD 'proyecto123';
+CREATE DATABASE db_asur OWNER proyecto;
+GRANT ALL PRIVILEGES ON DATABASE db_asur TO proyecto;
 \c db_asur
-create schema proyecto authorization proyecto;
-grant all on schema proyecto to proyecto;
-alter user proyecto set search_path to proyecto;
+CREATE SCHEMA IF NOT EXISTS proyecto AUTHORIZATION proyecto;
+GRANT ALL ON SCHEMA proyecto TO proyecto;
+ALTER USER proyecto SET search_path TO proyecto;
 \q
 ```
 
-**proyecto va en minusculas, no seas animal**
-
----
-
-### 4. cargar las tablas y datos
-
-desde la carpeta del proyecto:
-
+### 4. Ejecutar scripts SQL
+Desde la carpeta del proyecto:
 ```bash
-docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/02_ddl.sql
-docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/03_datos_iniciales.sql
+docker exec -i asur_postgres psql -U proyecto -d db_asur < src/main/sql/02_ddl.sql
+docker exec -i asur_postgres psql -U proyecto -d db_asur < src/main/sql/03_datos_iniciales.sql
 ```
 
----
-
-### 5. crear el config.properties
-
-ruta:
-
-```
-src/main/resources/config.properties
-```
-
-contenido:
-
+### 5. Crear archivo de configuración
+Crear `src/main/resources/config.properties`:
 ```properties
 db.url=jdbc:postgresql://localhost:5432/db_asur
 db.user=proyecto
 db.password=proyecto123
+
+mail.smtp.host=smtp.gmail.com
+mail.smtp.port=587
+mail.smtp.user=tu_correo@gmail.com
+mail.smtp.password=tu_app_password
+mail.from=noreply@asur.uy
+mail.smtp.starttls=true
+mail.smtp.ssl=false
 ```
 
-si no pones esto, no conecta 
+**IMPORTANTE:** El usuario debe ser `proyecto` en minúsculas.
 
----
+### 6. Abrir en IntelliJ
+1. File → Open → seleccionar carpeta `asur-proyecto`
+2. Esperar que cargue Maven (popup "Load Maven Project")
+3. Abrir `src/main/java/com/asur/Main.java`
+4. Click derecho → Run 'Main.main()'
 
-### 6. correr el sistema
-
-abrilo en intellij, busca:
-
+### 7. Login
 ```
-src/main/java/com/asur/main.java
-```
-
-click derecho → run.
-
----
-
-## usuarios para probar
-
-| mail                                  | pass      | que es   |
-| ------------------------------------- | --------- | -------- |
-| [admin@asur.uy](mailto:admin@asur.uy) | asd123!@# | el jefe  |
-| [maria@asur.uy](mailto:maria@asur.uy) | asd123!@# | socia    |
-| [juan@asur.uy](mailto:juan@asur.uy)   | asd123!@# | auxiliar |
-| [laura@asur.uy](mailto:laura@asur.uy) | asd123!@# | invitada |
-
----
-
-## errores tipicos (retraso del usuario)
-### sea lo q sea primero renombra config.propierties.example y sacale el .example si no no te va a ir ni pa atra
-
-### no conecta / connection refused
-
-* docker apagado
-* contenedor caido
-
-```bash
-docker-compose up -d
-docker ps
-docker logs asur_postgres
+correo: admin@asur.uy
+contraseña: asd123!@#
 ```
 
 ---
 
-### password authentication failed
+## Solución de Errores Comunes
 
-usaste mayusculas en el usuario.
+### Error: "password authentication failed for user PROYECTO"
+**Causa:** PostgreSQL es case-sensitive. El usuario se creó en minúsculas.
 
+**Solución:** En `config.properties` cambiar:
 ```properties
-db.user=proyecto
+db.user=proyecto    # minúsculas, NO "PROYECTO"
 ```
 
-asi, cortita.
+### Error: "relation already exists"
+**Causa:** Las tablas ya fueron creadas anteriormente.
+
+**Solución:** Reiniciar el schema:
+```bash
+docker exec -i asur_postgres psql -U postgres -d db_asur -c "DROP SCHEMA proyecto CASCADE;"
+docker exec -i asur_postgres psql -U postgres -d db_asur -c "CREATE SCHEMA proyecto AUTHORIZATION proyecto;"
+docker exec -i asur_postgres psql -U postgres -d db_asur -c "GRANT ALL ON SCHEMA proyecto TO proyecto;"
+docker exec -i asur_postgres psql -U proyecto -d db_asur < src/main/sql/02_ddl.sql
+docker exec -i asur_postgres psql -U proyecto -d db_asur < src/main/sql/03_datos_iniciales.sql
+```
+
+### Error: "permission denied for table"
+**Causa:** Las tablas fueron creadas por otro usuario (postgres).
+
+**Solución:** Misma que arriba - eliminar schema y recrear con usuario proyecto.
+
+### Error: "database db_asur already exists"
+**Causa:** La base de datos ya existe.
+
+**Solución:** Ignorar el error o eliminar y recrear:
+```bash
+docker exec -i asur_postgres psql -U postgres -c "DROP DATABASE db_asur;"
+docker exec -i asur_postgres psql -U postgres -c "CREATE DATABASE db_asur OWNER proyecto;"
+```
+
+### Error: "Connection refused" o "error conectando a bd"
+**Causa:** Docker no está corriendo o el contenedor está apagado.
+
+**Solución:**
+```bash
+docker ps                      # verificar si está corriendo
+docker-compose up -d           # levantar si está apagado
+docker logs asur_postgres      # ver logs si hay error
+```
+
+### Error: "role proyecto already exists"
+**Causa:** El usuario ya fue creado.
+
+**Solución:** Ignorar el error, continuar con los siguientes pasos.
 
 ---
 
-### relation already exists / permission denied
+## Resetear Todo (Nuclear Option)
+Si nada funciona, empezar de cero:
+```bash
+docker-compose down -v                    # elimina contenedor y volumen
+docker-compose up -d                      # crea todo de nuevo
+docker exec -it asur_postgres psql -U postgres
+```
 
-rompiste el schema. resetear:
+Dentro de psql:
+```sql
+CREATE USER proyecto WITH PASSWORD 'proyecto123';
+CREATE DATABASE db_asur OWNER proyecto;
+\c db_asur
+CREATE SCHEMA proyecto AUTHORIZATION proyecto;
+GRANT ALL ON SCHEMA proyecto TO proyecto;
+\q
+```
+
+Ejecutar scripts:
+```bash
+docker exec -i asur_postgres psql -U proyecto -d db_asur < src/main/sql/02_ddl.sql
+docker exec -i asur_postgres psql -U proyecto -d db_asur < src/main/sql/03_datos_iniciales.sql
+```
+
+---
+
+## Usuarios de Prueba
+
+| Correo | Contraseña | Perfil |
+|--------|------------|--------|
+| admin@asur.uy | asd123!@# | Administrador |
+| maria@asur.uy | asd123!@# | Socio |
+| juan@asur.uy | asd123!@# | Auxiliar |
+| laura@asur.uy | asd123!@# | Invitado |
+
+---
+
+## Módulos del Sistema
+
+| Código | Módulo |
+|--------|--------|
+| RF001 | Gestión de Usuarios |
+| RF002 | Gestión de Perfiles |
+| RF003 | Gestión de Funcionalidades |
+| RF004 | Auditoría |
+| RF005 | Gestión de Actividades |
+| RF006 | Gestión de Espacios/Recursos |
+| RF007 | Gestión de Tipos de Actividades |
+| RF008 | Gestión de Pagos |
+
+---
+
+## Estructura del Proyecto
+```
+asur-proyecto/
+├── pom.xml                     # Configuración Maven
+├── docker-compose.yml          # Configuración Docker
+├── README.md                   # Este archivo
+├── .gitignore
+└── src/
+    ├── main/
+    │   ├── java/com/asur/
+    │   │   ├── Main.java           # Punto de entrada
+    │   │   ├── controlador/        # Controlador principal
+    │   │   ├── modelos/            # Entidades y validaciones
+    │   │   ├── daos/               # Acceso a datos
+    │   │   ├── servicios/          # Lógica de negocio
+    │   │   ├── consola/            # Interfaz de usuario
+    │   │   └── utils/              # Utilidades
+    │   ├── resources/
+    │   │   └── config.properties   # Configuración (crear manualmente)
+    │   └── sql/
+    │       ├── 01_dcl.sql          # Usuarios y permisos
+    │       ├── 02_ddl.sql          # Tablas y estructuras
+    │       └── 03_datos_iniciales.sql  # Datos de prueba
+    └── test/                       # Tests unitarios
+```
+
+---
+
+## Comandos Útiles
 
 ```bash
-docker exec -i asur_postgres psql -u postgres -d db_asur -c "drop schema proyecto cascade;"
-docker exec -i asur_postgres psql -u postgres -d db_asur -c "create schema proyecto authorization proyecto;"
-docker exec -i asur_postgres psql -u postgres -d db_asur -c "grant all on schema proyecto to proyecto;"
-docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/02_ddl.sql
-docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/03_datos_iniciales.sql
+# Maven
+mvn clean compile              # Compilar
+mvn exec:java -Dexec.mainClass="com.asur.Main"   # Ejecutar
+
+# Docker
+docker-compose up -d           # Levantar BD
+docker-compose down            # Apagar BD
+docker-compose down -v         # Apagar y eliminar datos
+docker logs asur_postgres      # Ver logs
+
+# PostgreSQL
+docker exec -it asur_postgres psql -U proyecto -d db_asur   # Conectar
+\dt                            # Listar tablas
+\q                             # Salir
 ```
 
 ---
 
-## reset total 
-
+## Branches para GitHub
 ```bash
-docker-compose down -v
-docker-compose up -d
-```
+git init
+git checkout -b main
+git add .
+git commit -m "Initial commit - ASUR Sistema de Gestión"
 
-y volves a arrancar desde el paso 3.
+# Para desarrollo
+git checkout -b develop
 
----
+# Para nuevas funcionalidades
+git checkout -b feature/nombre-funcionalidad
 
-## comandos utiles
-
-```bash
-mvn clean compile
-mvn exec:java -dexec.mainclass="com.asur.main"
-docker-compose up -d
-docker-compose down
-docker logs asur_postgres
+# Para corrección de bugs
+git checkout -b bugfix/descripcion-bug
 ```
 
 ---
 
+## Seguridad Implementada
+- Contraseñas cifradas con BCrypt (factor 12)
+- Validación de cédula uruguaya con algoritmo de dígito verificador
+- Validación de contraseña fuerte (8+ chars, letra, número, especial)
+- Control de acceso por perfiles y funcionalidades
+- Auditoría de acciones de usuario
+- Prepared Statements para prevenir SQL Injection

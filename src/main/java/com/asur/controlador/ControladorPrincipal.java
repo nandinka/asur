@@ -34,7 +34,7 @@ public class ControladorPrincipal {
 
     private void login() {
         String correo = pedirString("correo: ", s -> s.isBlank() ? "ingrese un correo" : null);
-        String contrasena = pedirString("contrasena: ", s -> s.isBlank() ? "ingrese una contrasena" : null);
+        String contrasenia = pedirString("contraseña: ", s -> s.isBlank() ? "ingrese una contraseña" : null);
 
         Usuario usuario = usuarioServicio.obtenerPorCorreo(correo);
         if (usuario == null) {
@@ -42,13 +42,13 @@ public class ControladorPrincipal {
             return;
         }
 
-        if (usuario.getIdEstadoUsuario() != 1) {
-            System.out.println("usuario inactivo o bloqueado");
+        if (usuario.getIdEstadoUsuario() != 2) {
+            System.out.println("usuario inactivo o pendiente de validacion");
             return;
         }
 
-        if (!CifradoContrasenia.getInstancia().verificar(contrasena, usuario.getContrasena())) {
-            System.out.println("contrasena incorrecta");
+        if (!CifradoContrasenia.getInstancia().verificar(contrasenia, usuario.getContrasena())) {
+            System.out.println("contraseña incorrecta");
             return;
         }
 

@@ -44,11 +44,28 @@ public class ValidadorCedulaUruguaya {
             return false;
         }
         
+        // rechazar cedulas con todos ceros
+        if (ci.matches("^0+$")) {
+            return false;
+        }
+        
+        // la parte sin digito verificador no puede ser todos ceros
+        String ciSinDigito = ci.substring(0, ci.length() - 1);
+        if (ciSinDigito.matches("^0+$")) {
+            return false;
+        }
+        
+        // convertir a numero y validar rango minimo realista
+        // las cedulas uruguayas validas empiezan desde aprox 100.000
+        long valorNumerico = Long.parseLong(ciSinDigito);
+        if (valorNumerico < 100000) {
+            return false;
+        }
+        
         // obtener digito verificador ingresado
         int digitoIngresado = Character.getNumericValue(ci.charAt(ci.length() - 1));
         
         // calcular digito verificador
-        String ciSinDigito = ci.substring(0, ci.length() - 1);
         int digitoCalculado = calcularDigitoVerificador(ciSinDigito);
         
         return digitoIngresado == digitoCalculado;

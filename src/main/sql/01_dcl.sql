@@ -20,4 +20,3 @@ GRANT ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA proyecto TO PROYECTO;
 
 -- establecer schema por defecto
 ALTER USER PROYECTO SET search_path TO proyecto;
-

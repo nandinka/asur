@@ -23,13 +23,58 @@ public class UsuarioConsola {
     }
 
     public void mostrarMenu() {
+        int pendientes = servicio.contarPendientesActivacion();
+        String textoActivar = String.format("USUARIOS A ACTIVAR (%d)", pendientes);
+        
         pedirSeleccion("Gestion de Usuarios",
+                opcion(textoActivar, this::activarUsuarios),
                 opcion("Listar usuarios", this::listar),
                 opcion("Buscar por nombre", this::buscarNombre),
                 opcion("Registrar usuario", this::registrarUsuario),
                 opcion("Modificar usuario", this::modificar),
                 opcion("Dar de baja usuario", this::darBaja)
         );
+    }
+
+    public void activarUsuarios() {
+        List<Usuario> pendientes = servicio.obtenerPendientesActivacion();
+        
+        if (pendientes.isEmpty()) {
+            System.out.println("\nNo hay usuarios pendientes de activacion.");
+            return;
+        }
+        
+        do {
+            System.out.println("\n=== USUARIOS PENDIENTES DE ACTIVACION ===");
+            for (Usuario u : pendientes) {
+                System.out.printf("  ID: %d - %s %s (%s)%n", 
+                    u.getId(), u.getNombre(), u.getApellido(), u.getCorreo());
+            }
+            System.out.println();
+            
+            if (!pedirBoolean("¿Desea activar un usuario? (si/no): ")) {
+                break;
+            }
+            
+            int id = pedirInt("Introduzca el ID del usuario a activar: ");
+            Usuario u = servicio.obtenerPorId(id);
+            
+            if (u == null) {
+                System.out.println("Usuario no encontrado.");
+            } else if (u.getIdEstadoUsuario() != 1) {
+                System.out.println("El usuario no esta pendiente de activacion.");
+            } else {
+                servicio.activarUsuario(id);
+                System.out.println("¡Usuario " + u.getNombreCompleto() + " activado exitosamente!");
+                pendientes = servicio.obtenerPendientesActivacion();
+                
+                if (pendientes.isEmpty()) {
+                    System.out.println("\nNo quedan usuarios pendientes de activacion.");
+                    break;
+                }
+            }
+            
+        } while (pedirBoolean("¿Desea activar mas usuarios? (si/no): "));
     }
 
     public void registrarUsuario() {
@@ -52,11 +97,17 @@ public class UsuarioConsola {
             return;
         }
 
-        String contrasena = pedirString("contrasena: ", UsuarioValidaciones::validarContrasena);
+        String contrasenia = pedirString("contraseña: ", UsuarioValidaciones::validarContrasena);
         String calle = pedirStringOpcional("calle");
         String nroPuerta = pedirStringOpcional("nro puerta");
         
-        int idPerfil = pedirInt("perfil (1=Admin, 2=Socio, 3=Auxiliar, 4=Invitado): ");
+        // solo se puede registrar como Socio (2) o No Socio/Invitado (4)
+        // Admin (1) y Auxiliar (3) solo los puede asignar un administrador
+        System.out.println("tipo de usuario:");
+        System.out.println("  1. Socio");
+        System.out.println("  2. No Socio");
+        int tipoUsuario = pedirInt("seleccione (1-2): ", id -> (id >= 1 && id <= 2) ? null : "opcion invalida");
+        int idPerfil = (tipoUsuario == 1) ? 2 : 4; // Socio=2, Invitado=4
 
         Usuario u = new Usuario();
         u.setNombre(nombre);
@@ -64,10 +115,10 @@ public class UsuarioConsola {
         u.setDocumento(documento);
         u.setIdTipoDocumento(tipoDoc);
         u.setCorreo(correo);
-        u.setContrasena(contrasena);
+        u.setContrasena(contrasenia);
         u.setCalle(calle);
         u.setNroPuerta(nroPuerta);
-        u.setIdEstadoUsuario(1);
+        u.setIdEstadoUsuario(1); // Sin validar
         u.setIdPerfil(idPerfil);
 
         servicio.registrar(u);
@@ -95,7 +146,8 @@ public class UsuarioConsola {
             servicio.agregarTelefono(t2);
         }
 
-        System.out.println("usuario registrado con id: " + u.getId());
+        System.out.println("\n¡Registro exitoso! ID: " + u.getId());
+        System.out.println("Su solicitud sera revisada por un administrador.");
     }
 
     public void listar() {

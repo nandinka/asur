@@ -13,6 +13,10 @@ public class Reserva {
     private int cantPersonas;
     private BigDecimal montoTotal;
     private Time duracion;
+    private BigDecimal importeSena;
+    private Date fechaVtoSena;
+    private Date fechaPagoSena;
+    private BigDecimal importeSenaPagado;
     private int idEstadoPagoReserva;
     private int idUsuario;
     private int idRecurso;
@@ -20,22 +24,6 @@ public class Reserva {
     private boolean activa;
 
     public Reserva() {}
-
-    public Reserva(int id, String datosContacto, Date fecha, Time hora, int cantPersonas,
-                   BigDecimal montoTotal, Time duracion, int idEstadoPagoReserva,
-                   int idUsuario, int idRecurso, boolean activa) {
-        this.id = id;
-        this.datosContacto = datosContacto;
-        this.fecha = fecha;
-        this.hora = hora;
-        this.cantPersonas = cantPersonas;
-        this.montoTotal = montoTotal;
-        this.duracion = duracion;
-        this.idEstadoPagoReserva = idEstadoPagoReserva;
-        this.idUsuario = idUsuario;
-        this.idRecurso = idRecurso;
-        this.activa = activa;
-    }
 
     public int getId() { return id; }
     public void setId(int id) { this.id = id; }
@@ -51,6 +39,14 @@ public class Reserva {
     public void setMontoTotal(BigDecimal montoTotal) { this.montoTotal = montoTotal; }
     public Time getDuracion() { return duracion; }
     public void setDuracion(Time duracion) { this.duracion = duracion; }
+    public BigDecimal getImporteSena() { return importeSena; }
+    public void setImporteSena(BigDecimal importeSena) { this.importeSena = importeSena; }
+    public Date getFechaVtoSena() { return fechaVtoSena; }
+    public void setFechaVtoSena(Date fechaVtoSena) { this.fechaVtoSena = fechaVtoSena; }
+    public Date getFechaPagoSena() { return fechaPagoSena; }
+    public void setFechaPagoSena(Date fechaPagoSena) { this.fechaPagoSena = fechaPagoSena; }
+    public BigDecimal getImporteSenaPagado() { return importeSenaPagado; }
+    public void setImporteSenaPagado(BigDecimal importeSenaPagado) { this.importeSenaPagado = importeSenaPagado; }
     public int getIdEstadoPagoReserva() { return idEstadoPagoReserva; }
     public void setIdEstadoPagoReserva(int idEstadoPagoReserva) { this.idEstadoPagoReserva = idEstadoPagoReserva; }
     public int getIdUsuario() { return idUsuario; }
@@ -62,8 +58,14 @@ public class Reserva {
     public boolean isActiva() { return activa; }
     public void setActiva(boolean activa) { this.activa = activa; }
 
+    public BigDecimal getSaldoPendiente() {
+        if (montoTotal == null) return BigDecimal.ZERO;
+        if (importeSenaPagado == null) return montoTotal;
+        return montoTotal.subtract(importeSenaPagado);
+    }
+
     @Override
     public String toString() {
-        return String.format("Reserva[id=%d, fecha=%s, hora=%s]", id, fecha, hora);
+        return String.format("Reserva[id=%d, fecha=%s, hora=%s, saldo=%s]", id, fecha, hora, getSaldoPendiente());
     }
 }

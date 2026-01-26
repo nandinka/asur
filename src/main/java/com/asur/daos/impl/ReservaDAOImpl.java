@@ -19,6 +19,10 @@ public class ReservaDAOImpl implements ReservaDAO {
         r.setCantPersonas(rs.getInt("cant_personas"));
         r.setMontoTotal(rs.getBigDecimal("monto_total"));
         r.setDuracion(rs.getTime("duracion"));
+        r.setImporteSena(rs.getBigDecimal("importe_sena"));
+        r.setFechaVtoSena(rs.getDate("fecha_vto_sena"));
+        r.setFechaPagoSena(rs.getDate("fecha_pago_sena"));
+        r.setImporteSenaPagado(rs.getBigDecimal("importe_sena_pagado"));
         r.setIdEstadoPagoReserva(rs.getInt("id_estado_pago_reserva"));
         r.setIdUsuario(rs.getInt("id_usuario"));
         r.setIdRecurso(rs.getInt("id_recurso"));
@@ -110,20 +114,46 @@ public class ReservaDAOImpl implements ReservaDAO {
     }
 
     public void insertar(Reserva r) {
-        try (PreparedStatement ps = conn.prepareStatement("INSERT INTO reserva (datos_contacto, fecha, hora, cant_personas, monto_total, duracion, id_estado_pago_reserva, id_usuario, id_recurso, activa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", Statement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "INSERT INTO reserva (datos_contacto, fecha, hora, cant_personas, monto_total, duracion, importe_sena, fecha_vto_sena, fecha_pago_sena, importe_sena_pagado, id_estado_pago_reserva, id_usuario, id_recurso, activa) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", 
+                Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, r.getDatosContacto());
             ps.setDate(2, r.getFecha());
             ps.setTime(3, r.getHora());
             ps.setInt(4, r.getCantPersonas());
             ps.setBigDecimal(5, r.getMontoTotal());
             ps.setTime(6, r.getDuracion());
-            ps.setInt(7, r.getIdEstadoPagoReserva());
-            ps.setInt(8, r.getIdUsuario());
-            ps.setInt(9, r.getIdRecurso());
-            ps.setBoolean(10, r.isActiva());
+            ps.setBigDecimal(7, r.getImporteSena());
+            ps.setDate(8, r.getFechaVtoSena());
+            ps.setDate(9, r.getFechaPagoSena());
+            ps.setBigDecimal(10, r.getImporteSenaPagado());
+            ps.setInt(11, r.getIdEstadoPagoReserva());
+            ps.setInt(12, r.getIdUsuario());
+            ps.setInt(13, r.getIdRecurso());
+            ps.setBoolean(14, r.isActiva());
             ps.executeUpdate();
             ResultSet keys = ps.getGeneratedKeys();
             if (keys.next()) r.setId(keys.getInt(1));
+        } catch (SQLException e) { e.printStackTrace(); }
+    }
+
+    public void actualizar(Reserva r) {
+        try (PreparedStatement ps = conn.prepareStatement(
+                "UPDATE reserva SET datos_contacto=?, fecha=?, hora=?, cant_personas=?, monto_total=?, duracion=?, importe_sena=?, fecha_vto_sena=?, fecha_pago_sena=?, importe_sena_pagado=?, id_estado_pago_reserva=?, activa=? WHERE id_reserva=?")) {
+            ps.setString(1, r.getDatosContacto());
+            ps.setDate(2, r.getFecha());
+            ps.setTime(3, r.getHora());
+            ps.setInt(4, r.getCantPersonas());
+            ps.setBigDecimal(5, r.getMontoTotal());
+            ps.setTime(6, r.getDuracion());
+            ps.setBigDecimal(7, r.getImporteSena());
+            ps.setDate(8, r.getFechaVtoSena());
+            ps.setDate(9, r.getFechaPagoSena());
+            ps.setBigDecimal(10, r.getImporteSenaPagado());
+            ps.setInt(11, r.getIdEstadoPagoReserva());
+            ps.setBoolean(12, r.isActiva());
+            ps.setInt(13, r.getId());
+            ps.executeUpdate();
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
