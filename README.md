@@ -1,172 +1,229 @@
-# asur
 
-sistema de gestion para la asociacion de sordos del uruguay.  
-aplicacion hecha en java con base de datos en postgresql.
 
-## que hace
+# la obra magna
+# asur - sistema de gestion
 
-permite manejar usuarios, actividades, recursos y pagos.  
-tiene perfiles, control de accesos y auditoria simple.  
-usa el modelo entidad relacion definido en la documentacion.
+## asociacion de sordos del uruguay
 
-## requisitos
+esto es un sistema hecho en **java** para manejar la interna de asur.
+usuarios, permisos, actividades, pagos y todo eso.
+corre por consola, con base de datos en **postgresql** levantada con **docker**.
 
-- java 17  
-- maven  
-- postgresql  
-- docker (opcional)
+si seguis los pasos, anda. si no anda, es porque te salteaste algo.
+ lo speedrunee en 3 dias como jesus asi q puede estar bastante fulero en alguna q otra cosa no soy programadora tengo problemas psiquiatricos nomas y lo hice x amor al arte
 
-## configuracion
+---
 
-### base de datos
+## que trae esta poronga
 
-con docker:
+* manejo de usuarios
+* perfiles y permisos (no cualquiera hace cualquier cosa)
+* control de funcionalidades
+* auditoria 
+* actividades
+* espacios y recursos
+* tipos de actividades
+* pagos
+
+---
+
+## con que esta hecho
+
+* java 17+
+* maven (para no compilar a mano como un cavernicola)
+* postgresql
+* docker + docker compose (la bd se levanta sola)
+* intellij (si usas eclipse es bajo tu responsabilidad)
+
+---
+
+## seguridad 
+
+* contraseñas encriptadas con bcrypt
+* no se guardan passwords en texto plano
+* validacion de cedula uruguaya
+* contraseña fuerte o no entras
+* permisos por perfil
+* prepared statements (no hay sql injection aca capo)
+* auditoria de todo lo que hace el usuario
+
+---
+
+## requisitos 
+
+* java 17 o mas
+* maven
+* docker andando
+* ganas de leer
+
+---
+
+## como levantar esto sin llorar
+
+### 1. bajar el proyecto
+
+```bash
+unzip asur-proyecto.zip
+cd asur-proyecto
+```
+
+---
+
+### 2. levantar la base de datos
+
 ```bash
 docker-compose up -d
-sin docker:
-ejecutar los scripts sql en este orden:
+```
 
-01_dcl.sql
+si no sabes si anda:
 
-02_ddl.sql
+```bash
+docker ps
+```
 
-03_datos_iniciales.sql
+tenes que ver `asur_postgres`, si no esta, algo hiciste mal.
 
-aplicacion
-copiar config.properties.example a config.properties y configurar la bd y smtp.
+---
 
-ejecutar
+### 3. crear usuario y schema (leer bien)
 
+```bash
+docker exec -it asur_postgres psql -u postgres
+```
+
+adentro de postgres:
+
+```sql
+create user proyecto with password 'proyecto123';
+create database db_asur owner proyecto;
+grant all privileges on database db_asur to proyecto;
+\c db_asur
+create schema proyecto authorization proyecto;
+grant all on schema proyecto to proyecto;
+alter user proyecto set search_path to proyecto;
+\q
+```
+
+**proyecto va en minusculas, no seas animal**
+
+---
+
+### 4. cargar las tablas y datos
+
+desde la carpeta del proyecto:
+
+```bash
+docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/02_ddl.sql
+docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/03_datos_iniciales.sql
+```
+
+---
+
+### 5. crear el config.properties
+
+ruta:
+
+```
+src/main/resources/config.properties
+```
+
+contenido:
+
+```properties
+db.url=jdbc:postgresql://localhost:5432/db_asur
+db.user=proyecto
+db.password=proyecto123
+```
+
+si no pones esto, no conecta 
+
+---
+
+### 6. correr el sistema
+
+abrilo en intellij, busca:
+
+```
+src/main/java/com/asur/main.java
+```
+
+click derecho → run.
+
+---
+
+## usuarios para probar
+
+| mail                                  | pass      | que es   |
+| ------------------------------------- | --------- | -------- |
+| [admin@asur.uy](mailto:admin@asur.uy) | asd123!@# | el jefe  |
+| [maria@asur.uy](mailto:maria@asur.uy) | asd123!@# | socia    |
+| [juan@asur.uy](mailto:juan@asur.uy)   | asd123!@# | auxiliar |
+| [laura@asur.uy](mailto:laura@asur.uy) | asd123!@# | invitada |
+
+---
+
+## errores tipicos (retraso del usuario)
+### sea lo q sea primero renombra config.propierties.example y sacale el .example si no no te va a ir ni pa atra
+
+### no conecta / connection refused
+
+* docker apagado
+* contenedor caido
+
+```bash
+docker-compose up -d
+docker ps
+docker logs asur_postgres
+```
+
+---
+
+### password authentication failed
+
+usaste mayusculas en el usuario.
+
+```properties
+db.user=proyecto
+```
+
+asi, cortita.
+
+---
+
+### relation already exists / permission denied
+
+rompiste el schema. resetear:
+
+```bash
+docker exec -i asur_postgres psql -u postgres -d db_asur -c "drop schema proyecto cascade;"
+docker exec -i asur_postgres psql -u postgres -d db_asur -c "create schema proyecto authorization proyecto;"
+docker exec -i asur_postgres psql -u postgres -d db_asur -c "grant all on schema proyecto to proyecto;"
+docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/02_ddl.sql
+docker exec -i asur_postgres psql -u proyecto -d db_asur < src/main/sql/03_datos_iniciales.sql
+```
+
+---
+
+## reset total 
+
+```bash
+docker-compose down -v
+docker-compose up -d
+```
+
+y volves a arrancar desde el paso 3.
+
+---
+
+## comandos utiles
+
+```bash
 mvn clean compile
-mvn exec:java -Dexec.mainClass="com.asur.Main"
-base de datos
-la base de datos incluye:
+mvn exec:java -dexec.mainclass="com.asur.main"
+docker-compose up -d
+docker-compose down
+docker logs asur_postgres
+```
 
-tablas (usuario, cliente_asur, administrador, perfil, funcionalidad, categoria, recurso, reserva, actividad, inscripcion, cuota, pago, auditoria, etc)
+---
 
-relaciones n:m (perfil_funcionalidad, inscripcion_actividad)
-
-secuencias, indices y vistas
-
-triggers de auditoria
-
-constraints (pk, fk, uk y checks)
-
-seguridad
-validacion de cedula uruguaya
-
-contraseñas con bcrypt (factor 12)
-
-validacion basica de contraseña
-
-auditoria de acciones por usuario
-
-control de acceso por perfil
-
-medidas de ciberseguridad implementadas
-basandose en el proyecto desarrollado, se implementaron las siguientes medidas:
-
-autenticacion y contraseñas
-bcrypt con factor 12 para cifrado de contraseñas
-
-contraseñas nunca se guardan en texto plano
-
-validacion de contraseña fuerte (minimo 8 caracteres, letra, numero y caracter especial)
-
-validacion de datos
-validador de cedula uruguaya con algoritmo de digito verificador
-
-validacion de email mediante regex
-
-validacion de inputs (longitud, caracteres permitidos, campos obligatorios)
-
-uso de prepared statements para prevenir sql injection
-
-control de acceso
-sistema de perfiles y funcionalidades
-
-verificacion de permisos antes de ejecutar acciones
-
-estados de usuario (activo, inactivo, bloqueado)
-
-auditoria
-registro de acciones como login, logout y operaciones criticas
-
-trazabilidad de usuario, funcionalidad, operacion, detalle, fecha e ip
-
-triggers de auditoria en tablas sensibles (ej. usuario)
-
-base de datos
-usuario de bd separado con permisos limitados
-
-constraints check para validaciones a nivel bd
-
-claves unicas para documento y correo
-
-configuracion
-config.properties fuera del codigo
-
-credenciales no hardcodeadas
-
-archivo .gitignore para excluir configuraciones sensibles
-
-mejoras recomendadas (no implementadas)
-rate limiting para intentos de login
-
-uso de tokens jwt
-
-https obligatorio
-
-sanitizacion de outputs (xss)
-
-logs de seguridad separados
-
-autenticacion de dos factores (2fa)
-
-expiracion de contraseñas
-
-funcionalidades
-registro de usuarios
-
-opcion de agregar un telefono adicional
-
-envio de mails por smtp
-
-modulos segun requerimientos (rf001 a rf008)
-
-estructura
-
-src/
-  main/
-    java/com/asur/
-      modelos/
-      daos/
-      servicios/
-      consola/
-      controlador/
-      utils/
-    resources/
-    sql/
-  test/
-repo
-maven con dependencias
-
-docker-compose para postgres
-
-readme basico
-
-branches:
-
-main
-
-develop
-
-feature/*
-
-bugfix/*
-
-usuarios de prueba
-correo | contraseña | perfil
-admin@asur.uy | asd123!@# | administrador
-maria@asur.uy | asd123!@# | socio
-juan@asur.uy | asd123!@# | auxiliar
