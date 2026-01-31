@@ -27,29 +27,6 @@ public class UsuarioServicio {
         u.setContrasena(CifradoContrasenia.getInstancia().cifrar(u.getContrasena()));
         u.setIdEstadoUsuario(1); // Sin validar - pendiente de aprobacion
         dao.getUsuarioDAO().insertar(u);
-        
-        // intentar enviar email de confirmacion (no critico si falla)
-        try {
-            com.asur.utils.EmailSender.getInstancia().enviarEmail(
-                u.getCorreo(),
-                "ASUR - Registro en proceso de aprobacion",
-                String.format(
-                    "<html><body>" +
-                    "<h2>Bienvenido a ASUR</h2>" +
-                    "<p>Estimado/a %s %s,</p>" +
-                    "<p>Su solicitud de registro ha sido recibida y está en proceso de aprobación.</p>" +
-                    "<p>Su número de usuario es: <strong>%d</strong></p>" +
-                    "<p>Un administrador validará sus datos y recibirá un correo cuando su cuenta esté activa.</p>" +
-                    "<br><p>Saludos,<br>Asociación de Sordos del Uruguay</p>" +
-                    "</body></html>",
-                    u.getNombre(), u.getApellido(), u.getId()
-                ),
-                true
-            );
-        } catch (Exception e) {
-            // email no configurado o error de envio - no es critico
-            // el registro continua normalmente
-        }
     }
 
     public void actualizar(Usuario u) { dao.getUsuarioDAO().actualizar(u); }

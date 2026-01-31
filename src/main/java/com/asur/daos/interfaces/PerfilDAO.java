@@ -18,5 +18,6 @@ public interface PerfilDAO {
     void actualizar(Perfil perfil);
     void darBaja(int id);
     void asignarFuncionalidad(int idPerfil, int idFuncionalidad);
+    void agregarFuncionalidad(int idPerfil, int idFuncionalidad);
     void quitarFuncionalidad(int idPerfil, int idFuncionalidad);
 }

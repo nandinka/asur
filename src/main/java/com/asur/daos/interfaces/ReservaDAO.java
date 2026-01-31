@@ -18,5 +18,6 @@ public interface ReservaDAO {
     boolean existe(int id);
     boolean hayConflicto(int idRecurso, Date fecha, Time hora, Time duracion);
     void insertar(Reserva reserva);
+    void actualizar(Reserva reserva);
     void cancelar(int id);
 }

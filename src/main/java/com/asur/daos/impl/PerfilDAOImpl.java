@@ -102,6 +102,10 @@ public class PerfilDAOImpl implements PerfilDAO {
         } catch (SQLException e) { e.printStackTrace(); }
     }
 
+    public void agregarFuncionalidad(int idPerfil, int idFunc) {
+        asignarFuncionalidad(idPerfil, idFunc);
+    }
+
     public void quitarFuncionalidad(int idPerfil, int idFunc) {
         try (PreparedStatement ps = conn.prepareStatement("DELETE FROM perfil_funcionalidad WHERE id_perfil = ? AND id_funcionalidad = ?")) {
             ps.setInt(1, idPerfil);

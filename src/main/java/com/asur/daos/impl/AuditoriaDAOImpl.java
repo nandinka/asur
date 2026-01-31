@@ -34,6 +34,16 @@ public class AuditoriaDAOImpl implements AuditoriaDAO {
         return lista;
     }
 
+    public List<Auditoria> obtenerUltimos(int cantidad) {
+        List<Auditoria> lista = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM auditoria ORDER BY fecha_hora DESC LIMIT ?")) {
+            ps.setInt(1, cantidad);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) lista.add(crearDesdeResultSet(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return lista;
+    }
+
     public List<Auditoria> obtenerPorUsuario(int idUsuario) {
         List<Auditoria> lista = new ArrayList<>();
         try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM auditoria WHERE id_usuario = ? ORDER BY fecha_hora DESC")) {
@@ -49,6 +59,17 @@ public class AuditoriaDAOImpl implements AuditoriaDAO {
         try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM auditoria WHERE fecha_hora BETWEEN ? AND ? ORDER BY fecha_hora DESC")) {
             ps.setTimestamp(1, desde);
             ps.setTimestamp(2, hasta);
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) lista.add(crearDesdeResultSet(rs));
+        } catch (SQLException e) { e.printStackTrace(); }
+        return lista;
+    }
+
+    public List<Auditoria> obtenerPorRangoFecha(Date desde, Date hasta) {
+        List<Auditoria> lista = new ArrayList<>();
+        try (PreparedStatement ps = conn.prepareStatement("SELECT * FROM auditoria WHERE DATE(fecha_hora) BETWEEN ? AND ? ORDER BY fecha_hora DESC")) {
+            ps.setDate(1, desde);
+            ps.setDate(2, hasta);
             ResultSet rs = ps.executeQuery();
             while (rs.next()) lista.add(crearDesdeResultSet(rs));
         } catch (SQLException e) { e.printStackTrace(); }

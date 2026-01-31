@@ -120,13 +120,27 @@ public class Consola {
     }
 
     public static Time pedirTime(String texto) {
-        System.out.printf("%s (HH:MM:SS): ", texto);
+        System.out.print(texto);
         String entrada = Main.sc.nextLine();
         try {
+            if (entrada.matches("^\\d{1,2}:\\d{2}$")) {
+                entrada = entrada + ":00";
+            }
             return Time.valueOf(entrada);
         } catch (IllegalArgumentException e) {
-            System.out.println("formato de hora invalido");
+            System.out.println("formato de hora invalido (use HH:MM)");
             return pedirTime(texto);
+        }
+    }
+
+    public static java.math.BigDecimal pedirBigDecimal(String texto) {
+        System.out.print(texto);
+        String entrada = Main.sc.nextLine();
+        try {
+            return new java.math.BigDecimal(entrada);
+        } catch (NumberFormatException e) {
+            System.out.println("debe ser un numero valido");
+            return pedirBigDecimal(texto);
         }
     }
 

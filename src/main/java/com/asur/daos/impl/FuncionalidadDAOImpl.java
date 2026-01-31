@@ -41,6 +41,10 @@ public class FuncionalidadDAOImpl implements FuncionalidadDAO {
         return lista;
     }
 
+    public List<Funcionalidad> obtenerTodas() {
+        return obtenerTodos();
+    }
+
     public List<Funcionalidad> obtenerActivos() {
         List<Funcionalidad> lista = new ArrayList<>();
         try (Statement st = conn.createStatement()) {

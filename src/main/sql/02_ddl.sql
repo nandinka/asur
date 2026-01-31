@@ -281,49 +281,45 @@ CREATE TABLE tipo_actividad (
 CREATE TABLE actividad (
     id_actividad INTEGER PRIMARY KEY DEFAULT nextval('seq_actividad'),
     nombre VARCHAR(100) NOT NULL,
-    fecha_hora_actividad TIMESTAMP NOT NULL,
-    id_recurso INTEGER,
-    duracion INTERVAL,
-    costo_ticket DECIMAL(10,2) DEFAULT 0,
-    observaciones TEXT,
     descripcion TEXT,
-    fecha_hora_inicio_insc TIMESTAMP,
-    plazo_inscripcion INTERVAL,
-    requiere_inscripcion BOOLEAN NOT NULL DEFAULT FALSE,
     id_tipo_actividad INTEGER NOT NULL,
-    id_administrador INTEGER NOT NULL,
-    estado BOOLEAN NOT NULL DEFAULT TRUE,
+    fecha DATE NOT NULL,
+    hora TIME NOT NULL,
+    duracion TIME NOT NULL,
+    cupo_max INTEGER NOT NULL CHECK (cupo_max > 0),
+    inscritos INTEGER NOT NULL DEFAULT 0,
+    costo_socio DECIMAL(10,2) DEFAULT 0,
+    costo_no_socio DECIMAL(10,2) DEFAULT 0,
+    id_recurso INTEGER,
+    lugar VARCHAR(200),
+    activa BOOLEAN NOT NULL DEFAULT TRUE,
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     CONSTRAINT fk_actividad_recurso FOREIGN KEY (id_recurso) REFERENCES recurso(id_recurso),
-    CONSTRAINT fk_actividad_tipo FOREIGN KEY (id_tipo_actividad) REFERENCES tipo_actividad(id_tipo_actividad),
-    CONSTRAINT fk_actividad_admin FOREIGN KEY (id_administrador) REFERENCES administrador(id_administrador)
+    CONSTRAINT fk_actividad_tipo FOREIGN KEY (id_tipo_actividad) REFERENCES tipo_actividad(id_tipo_actividad)
 );
 
 -- inscripcion_actividad
 CREATE TABLE inscripcion_actividad (
-    id_actividad INTEGER NOT NULL,
+    id_inscripcion INTEGER PRIMARY KEY DEFAULT nextval('seq_auditoria'),
     id_usuario INTEGER NOT NULL,
-    fecha_inscripcion TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    id_actividad INTEGER NOT NULL,
+    fecha_inscripcion DATE NOT NULL DEFAULT CURRENT_DATE,
     activa BOOLEAN NOT NULL DEFAULT TRUE,
-    fecha_cancelacion TIMESTAMP,
-    PRIMARY KEY (id_actividad, id_usuario),
     CONSTRAINT fk_inscripcion_actividad FOREIGN KEY (id_actividad) REFERENCES actividad(id_actividad),
-    CONSTRAINT fk_inscripcion_usuario FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario)
+    CONSTRAINT fk_inscripcion_usuario FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
+    CONSTRAINT uk_inscripcion UNIQUE (id_usuario, id_actividad)
 );
 
 -- pago_actividad
 CREATE TABLE pago_actividad (
-    id_actividad INTEGER NOT NULL,
-    id_usuario INTEGER NOT NULL,
-    monto DECIMAL(10,2) NOT NULL CHECK (monto > 0),
+    id_pago_actividad INTEGER PRIMARY KEY DEFAULT nextval('seq_pago_reserva'),
+    id_inscripcion INTEGER NOT NULL,
+    monto DECIMAL(10,2) NOT NULL CHECK (monto >= 0),
     fecha_pago TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     id_forma_pago SMALLINT NOT NULL,
-    id_estado_pago_actividad SMALLINT NOT NULL DEFAULT 1,
-    PRIMARY KEY (id_actividad, id_usuario),
-    CONSTRAINT fk_pago_act_actividad FOREIGN KEY (id_actividad) REFERENCES actividad(id_actividad),
-    CONSTRAINT fk_pago_act_usuario FOREIGN KEY (id_usuario) REFERENCES usuario(id_usuario),
-    CONSTRAINT fk_pago_act_forma FOREIGN KEY (id_forma_pago) REFERENCES forma_pago(id_forma_pago),
-    CONSTRAINT fk_pago_act_estado FOREIGN KEY (id_estado_pago_actividad) REFERENCES estado_pago_actividad(id_estado_pago_actividad)
+    id_estado_pago SMALLINT NOT NULL DEFAULT 1,
+    CONSTRAINT fk_pago_act_inscripcion FOREIGN KEY (id_inscripcion) REFERENCES inscripcion_actividad(id_inscripcion),
+    CONSTRAINT fk_pago_act_forma FOREIGN KEY (id_forma_pago) REFERENCES forma_pago(id_forma_pago)
 );
 
 -- subcomision

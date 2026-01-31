@@ -1,0 +1,23 @@
+{
+    "serverpulse.services": [
+        {
+            "name": "postgres (docker)",
+            "type": "docker",
+            "port": 5432,
+            "useDocker": {
+                "pathToComposeFile": {
+                    "$mid": 1,
+                    "fsPath": "/Users/fcabrera/Downloads/asur/docker-compose.yml",
+                    "external": "file:///Users/fcabrera/Downloads/asur/docker-compose.yml",
+                    "path": "/Users/fcabrera/Downloads/asur/docker-compose.yml",
+                    "scheme": "file"
+                },
+                "selectedContainerName": "asur_postgres",
+                "serviceName": "postgres"
+            },
+            "healthCheckPath": "",
+            "enableHealthCheck": true,
+            "healthCheckInterval": 60000
+        }
+    ]
+}

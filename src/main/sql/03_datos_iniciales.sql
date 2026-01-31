@@ -194,9 +194,9 @@ INSERT INTO valor_cuota_base (costo_cuota, fecha_vigencia, activo) VALUES
 INSERT INTO usuario (nombre, apellido, documento, id_tipo_documento, correo, correo_confirmado, contrasena, calle, nro_puerta, id_estado_usuario, fec_nacimiento, id_perfil)
 VALUES
 ('Admin', 'Sistema', '12345678', 1, 'admin@asur.uy', TRUE, '$2a$12$kUFNkJy2pMI7HbmCpAotkedqFaY3qh0qGGXGtIzzMPtfn41Y4Nymy', 'Hermanos Gil', '945', 2, '1990-01-01', 1),
-('Maria', 'Rodriguez', '23456789', 1, 'maria@asur.uy', TRUE, '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.K3KqS0kZ/5K2Iy', 'Av. 18 de Julio', '1234', 2, '1985-05-15', 2),
-('Juan', 'Perez', '34567890', 1, 'juan@asur.uy', TRUE, '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.K3KqS0kZ/5K2Iy', 'Bulevar Artigas', '567', 2, '1992-08-20', 3),
-('Laura', 'Martinez', '45678901', 1, 'laura@asur.uy', FALSE, '$2a$12$LQv3c1yqBWVHxkd0LHAkCOYz6TtxMQJqhN8/X4.K3KqS0kZ/5K2Iy', 'Av. Brasil', '890', 1, '1988-03-10', 4);
+('Maria', 'Rodriguez', '23456789', 1, 'maria@asur.uy', TRUE, '$2a$12$kUFNkJy2pMI7HbmCpAotkedqFaY3qh0qGGXGtIzzMPtfn41Y4Nymy', 'Av. 18 de Julio', '1234', 2, '1985-05-15', 2),
+('Juan', 'Perez', '34567890', 1, 'juan@asur.uy', TRUE, '$2a$12$kUFNkJy2pMI7HbmCpAotkedqFaY3qh0qGGXGtIzzMPtfn41Y4Nymy', 'Bulevar Artigas', '567', 2, '1992-08-20', 3),
+('Laura', 'Martinez', '45678901', 1, 'laura@asur.uy', FALSE, '$2a$12$kUFNkJy2pMI7HbmCpAotkedqFaY3qh0qGGXGtIzzMPtfn41Y4Nymy', 'Av. Brasil', '890', 1, '1988-03-10', 4);
 
 -- telefonos
 INSERT INTO telefono (numero, id_tipo_telefono, id_estado_telefono, id_usuario) VALUES

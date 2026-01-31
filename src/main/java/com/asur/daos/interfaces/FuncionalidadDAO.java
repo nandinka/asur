@@ -10,6 +10,7 @@ public interface FuncionalidadDAO {
     Funcionalidad obtenerPorId(int id);
     Funcionalidad obtenerPorNombre(String nombre);
     List<Funcionalidad> obtenerTodos();
+    List<Funcionalidad> obtenerTodas();
     List<Funcionalidad> obtenerActivos();
     List<Funcionalidad> obtenerPorPerfil(int idPerfil);
     boolean existe(int id);
